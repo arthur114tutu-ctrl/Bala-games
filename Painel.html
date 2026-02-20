@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Administrativo</title>
+    <title>Painel Admin</title>
     <style>
         * {
             margin: 0;
@@ -145,97 +145,142 @@
         .toast.show {
             transform: translateX(0);
         }
+
+        .erro-login {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .erro-login h2 {
+            color: #ff4444;
+            margin-bottom: 20px;
+        }
+
+        .erro-login button {
+            max-width: 300px;
+            margin: 0 auto;
+            display: block;
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>⚙️ Painel Admin</h1>
-        <button class="btn-sair" onclick="sair()">Sair</button>
-    </div>
-
-    <div class="container">
-        <div class="nav">
-            <button class="active" onclick="mostrarTab('produtos')">Produtos</button>
-            <button onclick="mostrarTab('pix')">PIX</button>
-            <button onclick="mostrarTab('saldo')">Saldo</button>
-        </div>
-
-        <!-- Aba Produtos -->
-        <div id="tab-produtos" class="tab active">
-            <div class="card">
-                <h2>➕ Adicionar Produto</h2>
-                <input type="text" id="nomeProduto" placeholder="Nome do produto">
-                <input type="number" id="precoProduto" placeholder="Preço (R$)" step="0.01">
-                <input type="text" id="categoriaProduto" placeholder="Categoria">
-                <input type="text" id="imagemProduto" placeholder="URL da imagem">
-                <input type="text" id="descricaoProduto" placeholder="Descrição">
-                <input type="text" id="conteudoProduto" placeholder="Conteúdo para entrega">
-                <button onclick="adicionarProduto()">Adicionar Produto</button>
-            </div>
-
-            <div class="card">
-                <h2>📦 Produtos Cadastrados</h2>
-                <div id="listaProdutos"></div>
-            </div>
-        </div>
-
-        <!-- Aba PIX -->
-        <div id="tab-pix" class="tab">
-            <div class="card">
-                <h2>🏦 Adicionar Chave PIX</h2>
-                <select id="tipoPix">
-                    <option value="cpf">CPF</option>
-                    <option value="email">Email</option>
-                    <option value="phone">Celular</option>
-                    <option value="random">Chave Aleatória</option>
-                </select>
-                <input type="text" id="chavePix" placeholder="Digite a chave PIX">
-                <input type="text" id="nomePix" placeholder="Nome/Apelido">
-                <button onclick="adicionarPix()">Adicionar Chave</button>
-            </div>
-
-            <div class="card">
-                <h2>Chaves Configuradas</h2>
-                <div id="listaPix"></div>
-            </div>
-        </div>
-
-        <!-- Aba Saldo -->
-        <div id="tab-saldo" class="tab">
-            <div class="card">
-                <h2>💰 Saldo Disponível</h2>
-                <div class="saldo" id="saldoAtual">R$ 0,00</div>
-            </div>
-
-            <div class="card">
-                <h2>💸 Sacar</h2>
-                <input type="number" id="valorSaque" placeholder="Valor do saque" step="0.01">
-                <select id="chaveSaque">
-                    <option value="">Selecione uma chave...</option>
-                </select>
-                <button onclick="sacar()">Realizar Saque</button>
-            </div>
-        </div>
+    <div id="conteudo">
+        <!-- O conteúdo será inserido pelo JavaScript -->
     </div>
 
     <div class="toast" id="toast"></div>
 
     <script>
-        // Verificar se está logado
-        if (localStorage.getItem('adminLogado') !== 'true') {
-            window.location.href = 'adm.html';
+        // VERIFICAÇÃO SIMPLES - sem dependência de localStorage de outra página
+        const urlParams = new URLSearchParams(window.location.search);
+        const loginParam = urlParams.get('login');
+        const adminLogado = localStorage.getItem('adminLogado');
+        
+        // Se veio do adm.html ou já está logado
+        if (loginParam === 'ok' || adminLogado === 'true') {
+            // Marca como logado
+            localStorage.setItem('adminLogado', 'true');
+            mostrarPainel();
+        } else {
+            mostrarErroLogin();
         }
 
-        // Carregar dados
-        let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
-        let chavesPix = JSON.parse(localStorage.getItem('chavesPix')) || [];
-        let saldo = parseFloat(localStorage.getItem('saldo')) || 0;
+        function mostrarPainel() {
+            const conteudo = document.getElementById('conteudo');
+            
+            // Carregar dados
+            let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+            let chavesPix = JSON.parse(localStorage.getItem('chavesPix')) || [];
+            let saldo = parseFloat(localStorage.getItem('saldo')) || 0;
 
-        function mostrarTab(tab) {
+            conteudo.innerHTML = `
+                <div class="header">
+                    <h1>⚙️ Painel Admin</h1>
+                    <button class="btn-sair" onclick="sair()">Sair</button>
+                </div>
+
+                <div class="container">
+                    <div class="nav">
+                        <button class="active" onclick="mostrarTab('produtos', this)">Produtos</button>
+                        <button onclick="mostrarTab('pix', this)">PIX</button>
+                        <button onclick="mostrarTab('saldo', this)">Saldo</button>
+                    </div>
+
+                    <div id="tab-produtos" class="tab active">
+                        <div class="card">
+                            <h2>➕ Adicionar Produto</h2>
+                            <input type="text" id="nomeProduto" placeholder="Nome do produto">
+                            <input type="number" id="precoProduto" placeholder="Preço (R$)" step="0.01">
+                            <input type="text" id="categoriaProduto" placeholder="Categoria">
+                            <input type="text" id="imagemProduto" placeholder="URL da imagem">
+                            <input type="text" id="descricaoProduto" placeholder="Descrição">
+                            <input type="text" id="conteudoProduto" placeholder="Conteúdo para entrega">
+                            <button onclick="adicionarProduto()">Adicionar Produto</button>
+                        </div>
+
+                        <div class="card">
+                            <h2>📦 Produtos Cadastrados</h2>
+                            <div id="listaProdutos"></div>
+                        </div>
+                    </div>
+
+                    <div id="tab-pix" class="tab">
+                        <div class="card">
+                            <h2>🏦 Adicionar Chave PIX</h2>
+                            <select id="tipoPix">
+                                <option value="cpf">CPF</option>
+                                <option value="email">Email</option>
+                                <option value="phone">Celular</option>
+                                <option value="random">Chave Aleatória</option>
+                            </select>
+                            <input type="text" id="chavePix" placeholder="Digite a chave PIX">
+                            <input type="text" id="nomePix" placeholder="Nome/Apelido">
+                            <button onclick="adicionarPix()">Adicionar Chave</button>
+                        </div>
+
+                        <div class="card">
+                            <h2>Chaves Configuradas</h2>
+                            <div id="listaPix"></div>
+                        </div>
+                    </div>
+
+                    <div id="tab-saldo" class="tab">
+                        <div class="card">
+                            <h2>💰 Saldo Disponível</h2>
+                            <div class="saldo" id="saldoAtual">R$ ${saldo.toFixed(2)}</div>
+                        </div>
+
+                        <div class="card">
+                            <h2>💸 Sacar</h2>
+                            <input type="number" id="valorSaque" placeholder="Valor do saque" step="0.01">
+                            <select id="chaveSaque">
+                                <option value="">Selecione uma chave...</option>
+                            </select>
+                            <button onclick="sacar()">Realizar Saque</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            atualizarListaProdutos();
+            atualizarListaPix();
+        }
+
+        function mostrarErroLogin() {
+            document.getElementById('conteudo').innerHTML = `
+                <div class="erro-login">
+                    <h2>🔒 Acesso Negado</h2>
+                    <p>Você precisa fazer login primeiro.</p>
+                    <button onclick="window.location.href='adm.html'">Ir para Login</button>
+                </div>
+            `;
+        }
+
+        function mostrarTab(tab, btn) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
             document.getElementById('tab-' + tab).classList.add('active');
-            event.target.classList.add('active');
+            btn.classList.add('active');
             
             if (tab === 'saldo') atualizarSaldo();
             if (tab === 'pix') atualizarListaPix();
@@ -250,6 +295,7 @@
                 return;
             }
 
+            let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
             produtos.push({
                 id: Date.now(),
                 nome: nome,
@@ -262,18 +308,19 @@
 
             localStorage.setItem('produtos', JSON.stringify(produtos));
             mostrarToast('Produto adicionado!');
-            limparCamposProduto();
-            atualizarListaProdutos();
-        }
-
-        function limparCamposProduto() {
+            
+            // Limpar campos
             ['nomeProduto', 'precoProduto', 'categoriaProduto', 'imagemProduto', 'descricaoProduto', 'conteudoProduto'].forEach(id => {
                 document.getElementById(id).value = '';
             });
+            
+            atualizarListaProdutos();
         }
 
         function atualizarListaProdutos() {
             const lista = document.getElementById('listaProdutos');
+            let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+            
             if (produtos.length === 0) {
                 lista.innerHTML = '<p style="color: rgba(255,255,255,0.5);">Nenhum produto</p>';
                 return;
@@ -291,6 +338,7 @@
         }
 
         function excluirProduto(id) {
+            let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
             produtos = produtos.filter(p => p.id !== id);
             localStorage.setItem('produtos', JSON.stringify(produtos));
             atualizarListaProdutos();
@@ -306,6 +354,7 @@
                 return;
             }
 
+            let chavesPix = JSON.parse(localStorage.getItem('chavesPix')) || [];
             chavesPix.push({
                 id: Date.now(),
                 tipo: document.getElementById('tipoPix').value,
@@ -324,10 +373,11 @@
         function atualizarListaPix() {
             const lista = document.getElementById('listaPix');
             const select = document.getElementById('chaveSaque');
+            let chavesPix = JSON.parse(localStorage.getItem('chavesPix')) || [];
             
             if (chavesPix.length === 0) {
                 lista.innerHTML = '<p style="color: rgba(255,255,255,0.5);">Nenhuma chave</p>';
-                select.innerHTML = '<option value="">Nenhuma chave cadastrada</option>';
+                if (select) select.innerHTML = '<option value="">Nenhuma chave cadastrada</option>';
                 return;
             }
             
@@ -341,11 +391,14 @@
                 </div>
             `).join('');
             
-            select.innerHTML = '<option value="">Selecione...</option>' + 
-                chavesPix.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+            if (select) {
+                select.innerHTML = '<option value="">Selecione...</option>' + 
+                    chavesPix.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+            }
         }
 
         function excluirPix(id) {
+            let chavesPix = JSON.parse(localStorage.getItem('chavesPix')) || [];
             chavesPix = chavesPix.filter(c => c.id !== id);
             localStorage.setItem('chavesPix', JSON.stringify(chavesPix));
             atualizarListaPix();
@@ -353,6 +406,7 @@
         }
 
         function atualizarSaldo() {
+            let saldo = parseFloat(localStorage.getItem('saldo')) || 0;
             document.getElementById('saldoAtual').textContent = 'R$ ' + saldo.toFixed(2);
         }
 
@@ -364,6 +418,8 @@
                 mostrarToast('Digite um valor válido!');
                 return;
             }
+            
+            let saldo = parseFloat(localStorage.getItem('saldo')) || 0;
             
             if (valor > saldo) {
                 mostrarToast('Saldo insuficiente!');
@@ -384,7 +440,7 @@
 
         function sair() {
             localStorage.removeItem('adminLogado');
-            window.location.href = 'index.html';
+            window.location.href = 'adm.html';
         }
 
         function mostrarToast(msg) {
@@ -393,11 +449,6 @@
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
-
-        // Inicializar
-        atualizarListaProdutos();
-        atualizarListaPix();
-        atualizarSaldo();
     </script>
 </body>
 </html>
