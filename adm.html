@@ -89,6 +89,12 @@
             margin-top: 15px;
             display: none;
         }
+
+        .debug {
+            color: rgba(255,255,255,0.3);
+            font-size: 10px;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -96,19 +102,28 @@
         <h1>🔐 Acesso Administrativo</h1>
         <p>Digite a senha para acessar o painel</p>
         
-        <input type="password" id="senha" placeholder="••••••••••••••••" maxlength="20">
+        <input type="password" id="senha" placeholder="••••••••••••••••" maxlength="30">
         <button onclick="verificarSenha()">ENTRAR</button>
         
         <div class="error" id="erro">❌ Senha incorreta!</div>
         <div class="success" id="sucesso">✅ Acesso permitido! Redirecionando...</div>
+        
+        <div class="debug" id="debug"></div>
     </div>
 
     <script>
+        // SENHA DIRETA - SEM CRIPTOGRAFIA PARA TESTE
+        const SENHA_CORRETA = "BALASITE2026ATUALIZADO";
+        
         function verificarSenha() {
             const senhaDigitada = document.getElementById('senha').value;
-            const senhaCorreta = atob('QkFMQVNJVEUyMDI2QVRVQUxJWkFETw==');
             
-            if (senhaDigitada === senhaCorreta) {
+            // Debug - mostrar o que foi digitado (apenas para teste)
+            console.log("Digitada:", senhaDigitada);
+            console.log("Correta:", SENHA_CORRETA);
+            console.log("São iguais?", senhaDigitada === SENHA_CORRETA);
+            
+            if (senhaDigitada === SENHA_CORRETA) {
                 document.getElementById('sucesso').style.display = 'block';
                 document.getElementById('erro').style.display = 'none';
                 
@@ -123,6 +138,10 @@
                 document.getElementById('erro').style.display = 'block';
                 document.getElementById('sucesso').style.display = 'none';
                 document.getElementById('senha').value = '';
+                
+                // Mostrar debug
+                document.getElementById('debug').textContent = 
+                    'Você digitou: ' + senhaDigitada.length + ' caracteres';
             }
         }
 
