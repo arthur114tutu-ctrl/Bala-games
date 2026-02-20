@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 30px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 16px;
+            margin-bottom: 20px;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        .error {
+            color: #ff4444;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .success {
+            color: #00ff88;
+            margin-top: 15px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h1>🔐 Acesso Administrativo</h1>
+        <p>Digite a senha para acessar o painel</p>
+        
+        <input type="password" id="senha" placeholder="••••••••••••••••" maxlength="20">
+        <button onclick="verificarSenha()">ENTRAR</button>
+        
+        <div class="error" id="erro">❌ Senha incorreta!</div>
+        <div class="success" id="sucesso">✅ Acesso permitido! Redirecionando...</div>
+    </div>
+
+    <script>
+        function verificarSenha() {
+            const senhaDigitada = document.getElementById('senha').value;
+            const senhaCorreta = atob('QkFMQVNJVEUyMDI2QVRVQUxJWkFETw==');
+            
+            if (senhaDigitada === senhaCorreta) {
+                document.getElementById('sucesso').style.display = 'block';
+                document.getElementById('erro').style.display = 'none';
+                
+                // Salvar no localStorage que está logado
+                localStorage.setItem('adminLogado', 'true');
+                
+                // Redirecionar para o painel após 1 segundo
+                setTimeout(function() {
+                    window.location.href = 'painel.html';
+                }, 1000);
+            } else {
+                document.getElementById('erro').style.display = 'block';
+                document.getElementById('sucesso').style.display = 'none';
+                document.getElementById('senha').value = '';
+            }
+        }
+
+        // Permitir Enter para enviar
+        document.getElementById('senha').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                verificarSenha();
+            }
+        });
+    </script>
+</body>
+</html>
